@@ -4,6 +4,13 @@ import csv
 import os
 import shutil
 from tqdm import tqdm
+import pandas as pd
+from datetime import datetime
+import time
+
+# Número máximo de reintentos
+MAX_REINTENTOS = 3
+TIMEOUT_SEGUNDOS = 5
 
 # Endpoints
 PLANS_URL = "https://www.osde.com.ar/Cartilla/PlanRemote.ashx?metodo=ObtenerPlanesParaCartillaMedicaConNoComercial&r=0.13880617927273597"
@@ -43,30 +50,32 @@ def parsear_respuesta_como_json(response):
             print(f"Error al decodificar la respuesta: {response.text}")
             return None
 
+def hacer_solicitud_con_reintentos(url, params=None, headers=None):
+    intentos = 0
+    while intentos < MAX_REINTENTOS:
+        try:
+            response = requests.get(url, params=params, headers=headers, timeout=TIMEOUT_SEGUNDOS)
+            if response.status_code == 200:
+                return parsear_respuesta_como_json(response)
+            else:
+                print(f"Error en la solicitud. Código de estado: {response.status_code}")
+                return None
+        except requests.exceptions.Timeout:
+            intentos += 1
+            print(f"Timeout en la solicitud. Reintentando ({intentos}/{MAX_REINTENTOS})...")
+            time.sleep(2)  # Esperar 2 segundos antes de reintentar
+        except requests.exceptions.RequestException as e:
+            intentos += 1
+            print(f"Error de conexión: {e}. Reintentando ({intentos}/{MAX_REINTENTOS})...")
+            time.sleep(2)  # Esperar 2 segundos antes de reintentar
+    print("Error tras múltiples reintentos.")
+    return None
+
 def obtener_planes():
-    try:
-        response = requests.get(PLANS_URL, headers=HEADERS)
-        if response.status_code == 200:
-            return parsear_respuesta_como_json(response)
-        else:
-            print(f"Error al obtener planes. Código de estado: {response.status_code}")
-            return []
-    except requests.exceptions.RequestException as e:
-        print(f"Error de conexión al obtener planes: {e}")
-        return []
+    return hacer_solicitud_con_reintentos(PLANS_URL, headers=HEADERS)
 
 def obtener_provincias():
-    try:
-        response = requests.get(PROVINCIAS_URL, headers=HEADERS)
-        if response.status_code == 200:
-            return parsear_respuesta_como_json(response)
-        else:
-            print(f"Error al obtener provincias. Código de estado: {response.status_code}")
-            return []
-    except requests.exceptions.RequestException as e:
-        print(f"Error de conexión al obtener provincias: {e}")
-        return []
-
+    return hacer_solicitud_con_reintentos(PROVINCIAS_URL, headers=HEADERS)
 
 def obtener_prestadores(provinciaId, provinciaNombre, provinciaTipo, planId, especialidadId):
     params = {
@@ -84,16 +93,7 @@ def obtener_prestadores(provinciaId, provinciaNombre, provinciaTipo, planId, esp
         "filialId": 1,
         "modalidadAtencion": 2
     }
-    try:
-        response = requests.get(PRESTADORES_URL, params=params, headers=HEADERS)
-        if response.status_code == 200:
-            return parsear_respuesta_como_json(response)
-        else:
-            print(f"Error al obtener prestadores para provincia {provinciaNombre} y especialidad {especialidadId}. Código de estado: {response.status_code}")
-            return {}
-    except requests.exceptions.RequestException as e:
-        print(f"Error de conexión al obtener prestadores: {e}")
-        return {}
+    return hacer_solicitud_con_reintentos(PRESTADORES_URL, params=params, headers=HEADERS)
 
 def escribir_prestadores_csv(plan_nombre, especialidad_nombre, prestadores):
     # Nombre de la carpeta donde se guardarán los archivos CSV
@@ -238,6 +238,63 @@ def eliminar_carpeta_csv():
     else:
         print(f"La carpeta {carpeta_csv} no existe.")
 
+def combinar_csvs():
+    carpeta_csv = CARPETA_CV
+    
+    # Verificar si la carpeta existe
+    if not os.path.exists(carpeta_csv):
+        print(f"Error: La carpeta '{carpeta_csv}' no existe.")
+        return
+    
+    # Obtener la lista de archivos CSV en la carpeta
+    archivos_csv = [f for f in os.listdir(carpeta_csv) if f.endswith('.csv')]
+    
+    # Verificar si hay archivos CSV en la carpeta
+    if not archivos_csv:
+        print(f"Error: No se encontraron archivos CSV en la carpeta '{carpeta_csv}'.")
+        return
+
+    # Lista donde se almacenarán los DataFrames
+    dataframes = []
+
+    # Leer todos los archivos CSV y almacenarlos en la lista de DataFrames
+    for archivo in archivos_csv:
+        ruta_archivo = os.path.join(carpeta_csv, archivo)
+        try:
+            df = pd.read_csv(ruta_archivo)
+            dataframes.append(df)
+        except Exception as e:
+            print(f"Error al leer el archivo {archivo}: {e}")
+            continue
+
+    # Verificar si se cargaron DataFrames
+    if not dataframes:
+        print(f"Error: No se pudieron cargar archivos CSV de la carpeta '{carpeta_csv}'.")
+        return
+
+    # Combinar todos los DataFrames en uno solo
+    df_combinado = pd.concat(dataframes, ignore_index=True)
+
+    # Reemplazar valores vacíos en todas las columnas relevantes con una cadena vacía
+    columnas_relevantes = ['Nombre', 'Dirección', 'Email', 'Teléfono', 'Localidad', 'Provincia', 'Latitud', 'Longitud', 'Barrio', 'Plan', 'Especialidad']
+    df_combinado[columnas_relevantes] = df_combinado[columnas_relevantes].fillna('')
+
+    # Agrupar por los campos clave y combinar las columnas 'Plan' y 'Especialidad'
+    df_sin_duplicados = df_combinado.groupby(
+        ['Nombre', 'Dirección', 'Email', 'Teléfono', 'Localidad', 'Provincia', 'Latitud', 'Longitud', 'Barrio']
+    ).agg({
+        'Plan': lambda x: ', '.join(sorted(set(x.dropna().astype(str)))),
+        'Especialidad': lambda x: ', '.join(sorted(set(x.dropna().astype(str)))),
+    }).reset_index()
+
+    # Guardar el resultado en un nuevo archivo CSV en la raíz del proyecto
+    nombre_archivo = f"prestadores_{datetime.now().strftime('%d%m%Y')}.csv"
+    archivo_salida = os.path.join(os.getcwd(), nombre_archivo)
+    df_sin_duplicados.to_csv(archivo_salida, index=False)
+
+    print(f"Archivo combinado guardado como {archivo_salida}")
+
 if __name__ == "__main__":
     eliminar_carpeta_csv()
-    buscar_prestadores_psicologia()
+    buscar_prestadores_psicologia() 
+    combinar_csvs()
