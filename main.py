@@ -181,14 +181,6 @@ def escribir_prestadores_csv(plan_nombre, especialidad_nombre, prestadores):
                     barrios[i]
                 ])
 
-
-def calcular_porcentaje(total_planes, total_provincias, total_especialidades, plan_index, provincia_index, especialidad_index):
-    total_combinaciones = total_planes * total_provincias * total_especialidades  # Total de combinaciones posibles
-    progreso_actual = ((plan_index - 1) * total_provincias * total_especialidades) + ((provincia_index - 1) * total_especialidades) + especialidad_index
-    porcentaje = (progreso_actual / total_combinaciones) * 100
-    return porcentaje
-
-
 def buscar_prestadores_psicologia():
     planes = obtener_planes()
     if not planes:
@@ -218,11 +210,8 @@ def buscar_prestadores_psicologia():
                 provincia_nombre = provincia["nombre"]
                 provincia_tipo = provincia["tipo"]
                 
-                for especialidad_index, (especialidad_id, especialidad_nombre) in enumerate(ESPECIALIDADES_PSICOLOGIA, start=1):
+                for especialidad_id, especialidad_nombre in ESPECIALIDADES_PSICOLOGIA:
                     
-                    # Calcular el porcentaje de proceso
-                    porcentaje = calcular_porcentaje(total_planes, total_provincias, total_especialidades, plan_index, provincia_index, especialidad_index)
-
                     # Obtener prestadores
                     prestadores = obtener_prestadores(provincia_id, provincia_nombre, provincia_tipo, plan_id, especialidad_id)
                         
