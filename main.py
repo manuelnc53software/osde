@@ -3,7 +3,6 @@ import json
 import csv
 import os
 import shutil
-import time
 from tqdm import tqdm
 
 # Endpoints
@@ -26,9 +25,12 @@ ESPECIALIDADES_PSICOLOGIA = [
 ]
 
 # Headers para evitar que el servidor retorne 403
-headers = {
+HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
+
+#Carpeta de prestadores
+CARPETA_CV = "prestadores"
 
 def parsear_respuesta_como_json(response):
     try:
@@ -43,7 +45,7 @@ def parsear_respuesta_como_json(response):
 
 def obtener_planes():
     try:
-        response = requests.get(PLANS_URL, headers=headers)
+        response = requests.get(PLANS_URL, headers=HEADERS)
         if response.status_code == 200:
             return parsear_respuesta_como_json(response)
         else:
@@ -55,7 +57,7 @@ def obtener_planes():
 
 def obtener_provincias():
     try:
-        response = requests.get(PROVINCIAS_URL, headers=headers)
+        response = requests.get(PROVINCIAS_URL, headers=HEADERS)
         if response.status_code == 200:
             return parsear_respuesta_como_json(response)
         else:
@@ -83,7 +85,7 @@ def obtener_prestadores(provinciaId, provinciaNombre, provinciaTipo, planId, esp
         "modalidadAtencion": 2
     }
     try:
-        response = requests.get(PRESTADORES_URL, params=params, headers=headers)
+        response = requests.get(PRESTADORES_URL, params=params, headers=HEADERS)
         if response.status_code == 200:
             return parsear_respuesta_como_json(response)
         else:
@@ -95,7 +97,7 @@ def obtener_prestadores(provinciaId, provinciaNombre, provinciaTipo, planId, esp
 
 def escribir_prestadores_csv(plan_nombre, especialidad_nombre, prestadores):
     # Nombre de la carpeta donde se guardarán los archivos CSV
-    carpeta_csv = "prestadores"
+    carpeta_csv = CARPETA_CV
     
     # Crear la carpeta si no existe
     if not os.path.exists(carpeta_csv):
@@ -234,8 +236,8 @@ def buscar_prestadores_psicologia():
                     # Actualizar la barra de progreso
                     barra_progreso.update(1)
 
-def eliminar_carpeta_prestadores():
-    carpeta_csv = "prestadores"
+def eliminar_carpeta_csv():
+    carpeta_csv = CARPETA_CV
     
     # Verificar si la carpeta existe
     if os.path.exists(carpeta_csv):
@@ -246,5 +248,5 @@ def eliminar_carpeta_prestadores():
         print(f"La carpeta {carpeta_csv} no existe.")
 
 if __name__ == "__main__":
-    eliminar_carpeta_prestadores()
+    eliminar_carpeta_csv()
     buscar_prestadores_psicologia()
