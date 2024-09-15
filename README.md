@@ -17,7 +17,7 @@ Este proyecto está diseñado para ejecutarse con Python 3.x. A continuación, s
 - **datetime**: Para agregar marcas de tiempo al nombre de los archivos de salida.
 - **time**: Para agregar pausas entre reintentos en caso de error de conexión o timeout.
 
-##Instalación de dependencias:
+## Instalación de dependencias:
 Puedes instalar todas las dependencias necesarias utilizando `pip`. Aquí te mostramos cómo hacerlo:
 
 ```bash
