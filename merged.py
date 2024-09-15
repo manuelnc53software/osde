@@ -19,8 +19,17 @@ for archivo in archivos_csv:
 # Combinar todos los DataFrames en uno solo
 df_combinado = pd.concat(dataframes, ignore_index=True)
 
-# Eliminar filas duplicadas
-df_sin_duplicados = df_combinado.drop_duplicates()
+# Reemplazar valores vacíos en todas las columnas relevantes con una cadena vacía
+columnas_relevantes = ['Nombre', 'Dirección', 'Email', 'Teléfono', 'Localidad', 'Provincia', 'Latitud', 'Longitud', 'Barrio', 'Plan', 'Especialidad']
+df_combinado[columnas_relevantes] = df_combinado[columnas_relevantes].fillna('')
+
+# Agrupar por los campos clave y combinar las columnas 'Plan' y 'Especialidad'
+df_sin_duplicados = df_combinado.groupby(
+    ['Nombre', 'Dirección', 'Email', 'Teléfono', 'Localidad', 'Provincia', 'Latitud', 'Longitud', 'Barrio']
+).agg({
+    'Plan': lambda x: ', '.join(sorted(set(x.dropna().astype(str)))),
+    'Especialidad': lambda x: ', '.join(sorted(set(x.dropna().astype(str)))),
+}).reset_index()
 
 # Guardar el resultado en un nuevo archivo CSV
 archivo_salida = os.path.join(carpeta_csv, 'prestadores_merged.csv')

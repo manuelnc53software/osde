@@ -13,15 +13,15 @@ PRESTADORES_URL = "https://www.osde.com.ar/Cartilla/consultaPorEspecialidadRemot
 
 # Especialidades de psicología
 ESPECIALIDADES_PSICOLOGIA = [
-    ('1025', 'PSICODIAGNÓSTICO'),
-    ('810', 'PSICOLOGÍA ADULTOS'),
-    ('870', 'PSICOLOGÍA NIÑOS Y ADOLESCENTES'),
-    ('850', 'PSICOLOGÍA PAREJA Y FAMILIA'),
-    ('841', 'PSICOPEDAGOGÍA'),
-    ('808', 'PSIQUIATRÍA ADULTOS'),
-    ('809', 'PSIQUIATRÍA NIÑOS Y ADOLESCENTES'),
-    ('1026', 'EVALUACIÓN NEUROCOGNITIVA PSICOLÓGICA'),
-    ('1027', 'EVALUACIÓN NEUROPSICOPEDAGÓGICA')
+    ('1025', 'psicodiagnostico'),
+    ('810', 'psicologia_adultos'),
+    ('870', 'psicologia_ninos_y_adolescentes'),
+    ('850', 'psicologia_pareja_y_familia'),
+    ('841', 'psicopedagogia'),
+    ('808', 'psiquiatria_adultos'),
+    ('809', 'psiquiatria_ninos_y_adolescentes'),
+    ('1026', 'evaluacion_neurocognitiva_psicologica'),
+    ('1027', 'evaluacion_neuropsicopedagogica')
 ]
 
 # Headers para evitar que el servidor retorne 403
@@ -107,7 +107,7 @@ def escribir_prestadores_csv(plan_nombre, especialidad_nombre, prestadores):
     nombre_archivo = os.path.join(carpeta_csv, f"prestadores_plan_{plan_nombre}_especialidad_{especialidad_nombre}.csv")
     
     # Definir los encabezados del CSV
-    headers = ['Nombre', 'Dirección', 'Email', 'Teléfono', 'Localidad', 'Provincia', 'Latitud', 'Longitud', 'Barrio']
+    headers = [ 'Nombre', 'Dirección', 'Email', 'Teléfono', 'Localidad', 'Provincia', 'Latitud', 'Longitud', 'Barrio', 'Plan', 'Especialidad']
     
     # Si el archivo no existe, escribir los encabezados
     if not os.path.isfile(nombre_archivo):
@@ -178,7 +178,9 @@ def escribir_prestadores_csv(plan_nombre, especialidad_nombre, prestadores):
                     provincias[i],
                     latitudes[i],
                     longitudes[i],
-                    barrios[i]
+                    barrios[i],
+                    plan_nombre,
+                    especialidad_nombre
                 ])
 
 def buscar_prestadores_psicologia():
@@ -201,11 +203,11 @@ def buscar_prestadores_psicologia():
 
     # Usar tqdm para la barra de progreso
     with tqdm(total=total_iteraciones, desc="Progreso", unit="iter") as barra_progreso:
-        for plan_index, plan in enumerate(planes, start=1):
+        for plan in planes:
             plan_id = plan["id"]
             plan_nombre = plan["nombre"].replace(' ', '_')
             
-            for provincia_index, provincia in enumerate(provincias, start=1):
+            for  provincia in provincias:
                 provincia_id = provincia["id"]
                 provincia_nombre = provincia["nombre"]
                 provincia_tipo = provincia["tipo"]
