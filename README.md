@@ -2,7 +2,7 @@
 ## Introducción
 Este script extrae datos del sitio web de OSDE Argentina (https://www.osde.com.ar/index1.html#!cartilla.html), específicamente de su directorio de prestadores médicos, con el objetivo de generar una lista completa de psicólogos registrados en el sistema. A través de consultas automatizadas a la cartilla médica de OSDE, el script genera archivos CSV con la información de todos los psicólogos disponibles por provincia, plan y especialidad. Finalmente, combina todos los datos en un archivo llamado `prestadores_<fecha_actual>.csv`
 
-Un archivo de ejemplo` prestadores_15092024.csv` se proporciona para ilustrar el formato del resultado final.
+Un archivo de ejemplo` prestadores_15092024.csv` (https://github.com/manuelnc53software/osde/blob/main/prestadores_15092024.csv) se proporciona para ilustrar el formato del resultado final.
 
 ## Requisitos
 Este proyecto está diseñado para ejecutarse con Python 3.x. A continuación, se detallan las dependencias necesarias y sus usos:
