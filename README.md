@@ -66,14 +66,14 @@ py main.py
 
 7. Eliminación de la carpeta:
 
-	-`  eliminar_carpeta_csv:` Si existe una carpeta con archivos CSV generados previamente, la elimina antes de ejecutar nuevamente el script, asegurando que los datos sean actuales.
+	- `eliminar_carpeta_csv:` Si existe una carpeta con archivos CSV generados previamente, la elimina antes de ejecutar nuevamente el script, asegurando que los datos sean actuales.
 
 ## Ejecución Principal
 En la sección `if __name__ == "__main__":`, el código ejecuta las siguientes acciones en orden:
 
 1. **Eliminar CSV previos:** Si existe la carpeta de prestadores con archivos previos, la elimina.
 2. **Buscar prestadores:** Extrae todos los prestadores de psicología para cada plan y provincia y los guarda en archivos CSV.
-3. **Combinar archivos CSV: **Todos los archivos CSV generados se combinan en uno solo.
+3. **Combinar archivos CSV:** Todos los archivos CSV generados se combinan en uno solo.
 
 ## Archivo CSV de ejemplo
 El archivo `prestadores_15092024.csv` contiene un ejemplo de la salida final del script, con información como:
