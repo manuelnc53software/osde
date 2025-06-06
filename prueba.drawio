@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Página-1" id="vG7zA_8WZzH4epV3THgS">
+    <mxGraphModel dx="1035" dy="707" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" parent="">
+          <mxCell id="1" parent="0" />
+        </mxCell>
+        <mxCell id="2" value="Cliente" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="60" width="120" height="60" />
+        </mxCell>
+        <mxCell id="3" value="Pedido" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="180" width="120" height="60" />
+        </mxCell>
+        <mxCell id="4" value="Producto" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="300" width="120" height="60" />
+        </mxCell>
+        <mxCell id="5" edge="1" parent="1" source="2" target="3" style="curved=1;endArrow=blockThin;strokeColor=#000000;strokeWidth=2;">
+          <mxGeometry relative="1" />
+        </mxCell>
+        <mxCell id="6" edge="1" parent="1" source="3" target="4" style="curved=1;endArrow=blockThin;strokeColor=#000000;strokeWidth=2;">
+          <mxGeometry relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
